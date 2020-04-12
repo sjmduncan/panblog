@@ -1,0 +1,64 @@
+#!/bin/bash
+
+set -u
+
+pb_ver="0.1"
+pb_bindir="$HOME/.local/bin/"
+pb_sharedir="$HOME/.local/share/panblog/"
+pandoc_args="--standalone --css=style.css --listings --mathjax"
+
+
+# Check if things are installed
+pb_checksystem(){
+    if hash pandoc 2>/dev/null; then
+        pandoc --version | head -1
+    else
+        echo "PANDOC NOT INSTALLED. Install pandoc first"
+        exit 0
+    fi
+    if hash git 2>/dev/null; then
+        git --version | head -1
+    else
+        echo "GIT NOT INSTALLED. Instal git first"
+        exit 0
+    fi
+
+    if [[ -f "$pb_bindir/pb" ]]; then
+        echo "panblog version $pb_ver"
+    else
+        echo "PANBLOG NOT INSTALLED. Run install.sh first"
+        exit 0
+    fi
+}
+
+# Create a new blog
+pb_create(){
+    echo "Creating a new blog in $(pwd)"
+    echo "What's the title?"
+    read blog_title
+
+    echo "Who's the author?"
+    read blog_author
+    
+    echo "What's the source subdirectory?"
+    read src_dir
+
+    mkdir -p "$src_dir"
+
+    echo "Where should previews be published?"
+    read prev_dir
+
+    echo "Where to pub on production machine?"
+    read prod_dir
+    
+    cp -r "$pb_sharedir/style" "./style"
+    cat "$pb_sharedir/pb.conf.tmpl" | sed "s:__TITLE__:$blog_title:;s:__AUTHOR__:$blog_author:;s:__SRCDIR__:$src_dir:;s:__PREVDIR__:$prev_dir:;s:__PRODDIR__:$prod_dir:;" > pb.conf
+
+    git init
+    echo "Where's your remote URL"
+    read pub_git_url
+    git remote add origin "$pub_git_url"
+}
+
+pb_checksystem
+pb_create
