@@ -2,24 +2,51 @@
 
 set -u
 
+pb_ver="0.1"
+
+pb_help()
+{
+    echo "panblog version $pb_ver"
+    echo
+    echo "valid commands:"
+    echo "   write   - create a new blog entry"
+    echo "   edit    - edit a draft entry"
+    echo "   rewrite - edit a published (non-draft) entry"
+    echo "   pub     - publish all articles to preview dir"
+    echo "   push    - publish stuff to production server via git push"
+    echo "   help    - show this message"
+    echo
+}
+
+
 if [[ -f pb.conf ]]; then
     echo "Found config file: pb.conf"
 else
-    echo "Config file not foud: pb.conf"
-    echo "run pb-create first"
-    exit 0
+    if [ $# -eq 1 ]; then
+        case $1 in
+            "-h") pb_help;;
+            "help") pb_help;;
+            *) ;;
+        esac
+        exit 0
+    else
+        echo "Config file not foud: pb.conf"
+        echo "run pb-create first"
+        exit 0
+    fi
+    
 fi
 
 source pb.conf
 
-pb_ver="0.1"
+
 pb_bindir="$HOME/.local/bin/"
 pb_sharedir="$HOME/.local/share/panblog/"
 
-pb_tmpl_entry="style/template_entry.md"
-pb_tmpl_entry_html="style/template_entry.html"
-pb_tmpl_index="style/template_index.md"
-pb_tmpl_index_html="style/template_index.html"
+pb_tmpl_entry="$pb_styledir/template_entry.md"
+pb_tmpl_entry_html="$pb_styledir/template_entry.html"
+pb_tmpl_index="$pb_styledir/template_index.md"
+pb_tmpl_index_html="$pb_styledir/template_index.html"
 pb_temp_index="/tmp/index.md"
 
 pandoc_args="--standalone --css=style.css --listings --mathjax"
@@ -112,6 +139,7 @@ pb_pub()
     done
     pandoc -o "$target_dir/index.html" "$pb_temp_index" $pandoc_args --template "$pb_tmpl_index_html"
     existables[${#existables[@]}]="$target_dir/index.html"
+    rm "$pb_tmp_index"
 
     cp "style/style.css" "$target_dir/"
     existables[${#existables[@]}]="$target_dir/style.css"
@@ -137,7 +165,7 @@ pb_write()
       sed "s/__TITLE__/$entry_title/;" |\
       sed "s/__AUTHOR__/$pb_author/;" |\
       sed "s/__DATE__/$entry_date/;" > "$filename.md"
-  $EDITOR "$filename.md"
+  $pb_editor "$filename.md"
 }
 
 # Print a list of 'editables', user selects which one by index
@@ -158,25 +186,10 @@ pb_edit()
     elif [ "$etbl_idx" -lt 0 ]; then
         echo "Positive integer input only"
     elif [ "$etbl_idx" -le ${#editables[@]} ]; then
-        $EDITOR "${editables[$etbl_idx]}"
+        $pb_editor "${editables[$etbl_idx]}"
     else
         echo "Selected index does not exist"
     fi
-}
-
-pb_help()
-{
-    echo "panblog version $pb_ver"
-    echo
-    echo "valid commands:"
-    echo "   write   - create a new blog entry"
-    echo "   edit    - edit a draft entry"
-    echo "   rewrite - edit a published (non-draft) entry"
-    echo "   preview - create local preview of whole blog"
-    echo "   pub     - publish all articles to preview dir"
-    echo "   push    - publish stuff to production server via git push"
-    echo "   help    - show this message"
-    echo
 }
 
 pb_show_config
@@ -192,7 +205,6 @@ case $1 in
     "rewrite") pb_edit published;;
     "pub") pb_pub prev;;
     "push") pb_push;;
-    "help") pb_help;;
     "-h") pb_help;;
     *) pb_help;;
 esac

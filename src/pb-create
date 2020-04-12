@@ -34,27 +34,55 @@ pb_checksystem(){
 # Create a new blog
 pb_create(){
     echo "Creating a new blog in $(pwd)"
+
+    echo
     echo "What's the title?"
     read blog_title
 
+    echo
     echo "Who's the author?"
     read blog_author
-    
+
+    echo
     echo "What's the source subdirectory?"
     read src_dir
 
-    mkdir -p "$src_dir"
-
+    if ! [[ "$src_dir" == "" ]]; then
+        mkdir -p "$src_dir"
+    fi
+    
+    echo
     echo "Where should previews be published?"
     read prev_dir
 
+    echo
     echo "Where to pub on production machine?"
     read prod_dir
-    
-    cp -r "$pb_sharedir/style" "./style"
-    cat "$pb_sharedir/pb.conf.tmpl" | sed "s:__TITLE__:$blog_title:;s:__AUTHOR__:$blog_author:;s:__SRCDIR__:$src_dir:;s:__PREVDIR__:$prev_dir:;s:__PRODDIR__:$prod_dir:;" > pb.conf
 
+
+    pb_ed=${EDITOR=EDITORUNSET}
+    if [ "$EDITOR" == "EDITORUNSET" ]; then
+        echo
+        echo "\$EDITOR is not set. Please choose one."
+        read pb_ed
+    else
+        echo
+        echo "\$EDITOR is $EDITOR, using this for panblog"
+    fi
+    
+    cat "$pb_sharedir/pb.conf.tmpl" |\
+        sed "s:__TITLE__:$blog_title:;s:__AUTHOR__:$blog_author:;" |\
+        sed "s:__SRCDIR__:$src_dir:;s:__PREVDIR__:$prev_dir:;s:__PRODDIR__:$prod_dir:;" | \
+        sed "s:__EDITCMD__:$pb_ed:;" > pb.conf
+
+    source pb.conf
+
+    cp -r "$pb_sharedir/style/" "$pb_styledir"
+
+    echo
     git init
+
+    echo
     echo "Where's your remote URL"
     read pub_git_url
     git remote add origin "$pub_git_url"
