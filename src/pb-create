@@ -57,7 +57,6 @@ pb_create(){
     echo "Where should the blog be published on production machine?"
     read prod_dir
 
-
     pb_ed=${EDITOR=EDITORUNSET}
     if [ "$EDITOR" == "EDITORUNSET" ]; then
         echo
@@ -87,6 +86,8 @@ pb_create(){
     cp -r "$pb_sharedir/style/" "$pb_reltempldir"
     mv "$pb_reltempldir/style.css" "$pb_srcdir"
 
+    mkdir -p "$pb_relmediadir"
+    
     echo
     git init
 
