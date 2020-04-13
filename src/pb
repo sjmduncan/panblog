@@ -9,12 +9,12 @@ pb_help()
     echo "panblog version $pb_ver"
     echo
     echo "valid commands:"
-    echo "   write   - create a new blog entry"
-    echo "   edit    - edit a draft entry"
-    echo "   rewrite - edit a published (non-draft) entry"
-    echo "   pub     - publish all articles to preview dir"
-    echo "   push    - publish stuff to production server via git push"
-    echo "   help    - show this message"
+    echo "   [w|write]   - create a new blog entry"
+    echo "   [e|edit]    - edit a draft entry"
+    echo "   [r|rewrite] - edit a published (non-draft) entry"
+    echo "   pub         - publish all articles to preview dir"
+    echo "   push        - publish stuff to production server via git push"
+    echo "   [h|-h|help] - show this message"
     echo
 }
 
@@ -42,17 +42,16 @@ if [[ -f pb.conf ]]; then
 else
     if [ $# -eq 1 ]; then
         case $1 in
-            "-h") pb_help;;
-            "help") pb_help;;
+            "-h"|"h"|"help")
+                pb_help
+                exit 0;;
             *) ;;
         esac
-        exit 0
-    else
-        echo "Config file not foud: pb.conf"
-        echo "run pb-create first"
-        exit 0
     fi
-    
+
+    echo "Config file not foud: pb.conf"
+    echo "run pb-create first"
+    exit 0
 fi
 
 source pb.conf
@@ -144,6 +143,7 @@ pb_pub()
 
     cp -vu "$pb_srcdir/style.css" "$target_dir/"
 
+    
     echo "Copying updated media"
     if hash rsync 2>>/dev/null; then
        rsync -vruc --delete "$pb_relmediadir/" "$target_dir/$pb_relmediadir"
@@ -204,11 +204,11 @@ if [ $# -ne 1 ]; then
 fi
 
 case $1 in
-    "write") pb_write;;
-    "edit") pb_edit draft;;
-    "rewrite") pb_edit published;;
+    "write"|"w") pb_write;;
+    "edit"|"e") pb_edit draft;;
+    "rewrite"|"r") pb_edit published;;
     "pub") pb_pub prev;;
     "prod") pb_pub prod;;
-    "-h") pb_help;;
+    "-h"|"h"|"help") pb_help;;
     *) pb_help;;
 esac
