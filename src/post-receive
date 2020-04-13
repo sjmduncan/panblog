@@ -2,20 +2,31 @@
 
 set -u
 
-repo_dir="$(pwd)/../../"
-pb_tmp="/tmp/pb/"
+echo
+echo
+
+repo_dir="$(pwd)"
+echo "$repo_dir"
+repo_name="${repo_dir##*/}"
+echo "$repo_name"
+pb_tmp="$HOME/pb/$repo_name"
+echo "$pb_tmp"
+
 mkdir -p "$pb_tmp"
 
-echo $(pwd)
-
-git --work-tree="$pb_tmp" --git-dir="$repo_dir" checkout -f
-
 pushd "$pb_tmp"
-echo $(pwd)
-pb
 
+if [ -f ".git/config" ]; then
+	git pull
+else
+	git clone "$repo_dir" ./ 2>/dev/null
+fi
+
+"$HOME/.local/bin/pb" prod
+
+echo
+echo
 popd
-rm -rf "$pb_tmp"
 
 
 

@@ -203,6 +203,7 @@ case $1 in
     "edit") pb_edit draft;;
     "rewrite") pb_edit published;;
     "pub") pb_pub prev;;
+    "prod") pb_pub prod;;
     "-h") pb_help;;
     *) pb_help;;
 esac
