@@ -5,7 +5,7 @@ set -u
 pb_bindir="$HOME/.local/bin/"
 pb_sharedir="$HOME/.local/share/panblog/"
 
-if ! grep "export PATH=\"\$PATH:\$HOME/.local/bin.*\"" "$HOME/.bashrc" 2>/dev/null; then
+if ! grep "export PATH=\"\$PATH:\$HOME/.local/bin.*\"" "$HOME/.bashrc" >/dev/null 2>/dev/null; then
     echo "Adding \$HOME/.local/bin to your path in .bashrc"
     echo "export PATH=\"\$PATH:\$HOME/.local/bin\"" >> "$HOME/.bashrc"
 fi
