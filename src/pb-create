@@ -64,12 +64,21 @@ pb_create(){
         read pb_ed
     else
         echo
-        echo "\$EDITOR is $EDITOR, using this for panblog"
+        echo "\$EDITOR is $EDITOR, using this for panblog (change in pb.conf later)"
     fi
-    
+
+    echo
+    echo "Production user (probably git)"
+    read prd_user
+
+    echo
+    echo "Production usergroup (probably www-data)"
+    read prd_usrgrp
+
     cat "$pb_sharedir/pb.conf.tmpl" |\
         sed "s:__TITLE__:$blog_title:;s:__AUTHOR__:$blog_author:;" |\
         sed "s:__SRCDIR__:$src_dir:;s:__PREVDIR__:$prev_dir:;s:__PRODDIR__:$prod_dir:;" | \
+        sed "s:__PBPRDGRP__:$prd_usergrp:;s:__PBPRDUSR__:$prd_user:;" |\
         sed "s:__EDITCMD__:$pb_ed:;" > pb.conf
 
     source pb.conf

@@ -150,6 +150,11 @@ pb_pub()
     else
        cp -vru "$pb_srcdir/$pb_relmediadir" "$target_dir/"
     fi
+
+    if [ "$1" == "prod" ]; then
+        chown -R "$pb_prod_user:$pb_prod_group" "$target_dir*"
+        chmod -R +rw "$target_dir*"
+    fi
 }
 
 # Creat a new timestamped article named for the article title
