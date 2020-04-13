@@ -2,15 +2,20 @@
 
 set -u
 
-pb_prodcache="/temp/pb/"
-pb_repo="$pwd/../"
+repo_dir="$(pwd)/../../"
+pb_tmp="/tmp/pb/"
+mkdir -p "$pb_tmp"
 
-mkdir -p  "$pb_prodsrc"
+echo $(pwd)
 
-git --work-tree="$pb_prodsrc" --git-dir="$pb_repo" checkout -f
+git --work-tree="$pb_tmp" --git-dir="$repo_dir" checkout -f
 
-cd "$pb_prodsrc"
+pushd "$pb_tmp"
+echo $(pwd)
+pb
 
-source pb
+popd
+rm -rf "$pb_tmp"
 
-pb_pub prod
+
+

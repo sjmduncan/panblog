@@ -97,12 +97,16 @@ pb_pub()
            exit 0 ;;
     esac
 
+    # track what to put in the index page
     indexables=()
+
+    # TODO: track what files are allowed to exist, and remove unallowed files from production/preview
+    existables=()
     for mdf in ${pb_mdfiles[@]}; do
         htf=$target_dir${mdf%.md}.html
         if [ $(pb_entry_type $mdf) == "draft" ]; then
             if [ "$1" == "prev" ]; then
-                pandoc -o "$htf" "$mdf" $pandoc_args --template "$pb_tmpl_entry_html"
+                pandoc -o "$htf" "$mdf" $pb_pandoc_args --template "$pb_tmpl_entry_html"
                 echo "DRAFT: $mdf -> $htf"
             fi
         else
@@ -111,7 +115,7 @@ pb_pub()
             indexables[${#indexables[@]}]="$mdf_date,$mdf,${htf##*/}"
             if [ "$mdf" -nt "$htf" ]; then
                 echo "UP:    $mdf -> $htf"
-                pandoc -o "$htf" "$mdf" $pandoc_args --template "$pb_tmpl_entry_html"
+                pandoc -o "$htf" "$mdf" $pb_pandoc_args --template "$pb_tmpl_entry_html"
             elif [ $pb_verbose -ne 0 ]; then
                 echo "CURR:  $mdf -- $htf"
             fi
@@ -133,7 +137,7 @@ pb_pub()
         echo >> "$pb_temp_index"
     done
 
-    pandoc -o "$target_dir/index.html" "$pb_temp_index" $pandoc_args --template "$pb_tmpl_index_html"
+    pandoc -o "$target_dir/index.html" "$pb_temp_index" $pb_pandoc_args --template "$pb_tmpl_index_html"
     rm "$pb_temp_index"
 
     cp -vu "$pb_srcdir/style.css" "$target_dir/"
