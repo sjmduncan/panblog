@@ -152,8 +152,8 @@ pb_pub()
     fi
 
     if [ "$1" == "prod" ]; then
-        chown -R "$pb_prod_user:$pb_prod_group" "$target_dir*"
-        chmod -R +rw "$target_dir*"
+        chown -R "$pb_prod_user:$pb_prod_group" "$target_dir"
+        chmod -R +rw "$target_dir"
     fi
 }
 
