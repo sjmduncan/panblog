@@ -146,9 +146,9 @@ pb_pub()
 
     echo "Copying updated media"
     if hash rsync 2>>/dev/null; then
-       rsync -vruc --delete "$pb_srcdir/$pb_relmediadir/" "$target_dir/$pb_relmediadir"
+       rsync -vruc --delete "$pb_relmediadir/" "$target_dir/$pb_relmediadir"
     else
-       cp -vru "$pb_srcdir/$pb_relmediadir" "$target_dir/"
+       cp -vru "$pb_relmediadir" "$target_dir/"
     fi
 
     if [ "$1" == "prod" ]; then
@@ -164,7 +164,7 @@ pb_write()
   echo "Enter article title:"
   read entry_title
   safe_title=$(pb_safestring "$entry_title")
-  filename="$entry_date-$safe_title"
+  filename="$pb_srcdir$entry_date-$safe_title"
   cat "$pb_tmpl_entry" |\
       sed "s/__TITLE__/$entry_title/;" |\
       sed "s/__AUTHOR__/$pb_author/;" |\

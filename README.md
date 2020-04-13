@@ -1,17 +1,14 @@
-# `panblog`
+# Panblog
 
-[Pandoc](https://pandoc.org/) + bash + git = panblog.
-
+[Pandoc](https://pandoc.org/) + bash + git = blog anywhere.
 
 ## Why?
 
-Pandoc is really good, works for mathjax and via the `pandoc-citeproc` filter can do academic style citations from `bibtex` files that I already have.
-
-Other things seemed more complicated than I needed, and besides [I didn't invent them](https://en.wikipedia.org/wiki/Not_invented_here).
+There are lots of [static site generators](https://www.staticgen.com/). Don't like them, too complicated, don't need most of the analytics/cms/third-party-integration that a lot of them provide, [they weren't invented here](https://en.wikipedia.org/wiki/Not_invented_here)), and I already have pandoc pretty much everwhere I work.
 
 ## Requirements
 
-- pandoc
+- [pandoc]()
   - pandoc-citeproc (optional) for bibtex citations with  \[@cite-key\] 
 - bash
 - git (`gitolite` is recommended for managing the remote repository)
@@ -25,7 +22,7 @@ cd panblog`
 ./install.sh
 ```
 
-This provides two commands: `pb-create` for creating a new blog root, and `pb` which must be invoked from within a blog root (i.e. a folder that contains a valid `pb.conf` file) and lets you work on the blog:
+This'll put `pb` abd `pb-create` in `~/.local/bin` and add it to your `PATH` in `~/.bashrc`, `pb` is mostly how you interact with panblog:
 
 ```
 $ pb help
@@ -54,27 +51,35 @@ $ pb-create
 pandoc 2.9.2.1
 git version 2.17.1
 panblog version 0.1
-Creating a new blog in /home/stu/Projects/blog
+Creating a new blog in /home/stu/Projects/pantest
 
 What's the title?
-Panblog - blog with pandoc
+Panblog Blog
 
 Who's the author?
 Stu
 
 What's the source subdirectory?
-./
+src/
 
 Where should previews be published?
-$HOME/Documents/blog_preview
+/home/stu/Documents/blog_preview
 
-Where to publish on production server?
-/var/www-data/blog/
+Where to pub on production machine?
+/var/www/blog
 
-Initialized empty Git repository in /home/stu/Projects/blog/.git/
-Where's your remote git repository
-ssh://git@host.tld/blog_src.git
+$EDITOR is vim (you can change this in pb.conf later)
 
+Production user (probably git)?
+git
+
+Production usergroup (probably www-data)?
+www-data
+
+Initialized empty Git repository in /home/stu/Dropbox/Projects/pantest/.git/
+
+Where's your remote URL?
+gitolite:blog_src.git
 ```
 
 You can leave the last two prompts blank if you don't have a remote repository/production server yet, you can use `git remote add` and update the where-to-publish for the server in `pb.conf` later.
