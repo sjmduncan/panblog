@@ -1,1 +1,16 @@
 #!/bin/bash
+
+set -u
+
+pb_prodcache="/temp/pb/"
+pb_repo="$pwd/../"
+
+mkdir -p  "$pb_prodsrc"
+
+git --work-tree="$pb_prodsrc" --git-dir="$pb_repo" checkout -f
+
+cd "$pb_prodsrc"
+
+source pb
+
+pb_pub prod

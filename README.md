@@ -41,7 +41,6 @@ valid commands:
 
 ```
 
-
 ## Using
 
 Create a blog root folder and invoke `pb-create` inside it:
@@ -79,6 +78,8 @@ ssh://git@host.tld/blog_src.git
 ```
 
 You can leave the last two prompts blank if you don't have a remote repository/production server yet, you can use `git remote add` and update the where-to-publish for the server in `pb.conf` later.
+
+Run 
 
 ## Configuring
 

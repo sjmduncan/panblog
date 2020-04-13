@@ -19,6 +19,24 @@ pb_help()
 }
 
 
+# Turn paths and human-readable stuff into mostly-safe strings
+# for filenames and stuff
+pb_safestring(){
+    echo "$1" | sed 's/ /_/g;s/[?:\/\\]//g;'
+}
+
+# Check if entry is to be published or is still in a draft state
+pb_entry_type()
+{
+    if $(head -7 "$1" | grep -i --quiet DRAFT); then
+        echo "draft"
+    else
+        echo "published"
+    fi
+}
+
+
+
 if [[ -f pb.conf ]]; then
     echo "Found config file: pb.conf"
 else
@@ -40,30 +58,14 @@ fi
 source pb.conf
 
 
-pb_bindir="$HOME/.local/bin/"
-pb_sharedir="$HOME/.local/share/panblog/"
-
-pb_tmpl_entry="$pb_styledir/template_entry.md"
-pb_tmpl_entry_html="$pb_styledir/template_entry.html"
-pb_tmpl_index="$pb_styledir/template_index.md"
-pb_tmpl_index_html="$pb_styledir/template_index.html"
-pb_temp_index="/tmp/index.md"
-
-pandoc_args="--standalone --css=style.css --listings --mathjax"
-
-
-pb_mdfiles=()
-pb_index_filelist=()
-pb_safestring(){
-    echo "$1" | sed 's/ /_/g;s/[?:\/\\]//g;'
-}
-
+# Print config from pb.conf
 pb_show_config()
 {
     echo "Blog: $pb_title"
     echo "Author: $pb_author"
 }
 
+# Check if we can publish
 pb_check_state()
 {
     errcode=0
@@ -80,21 +82,10 @@ pb_check_state()
     fi
 }
 
-# Check if the given file is a draft
-pb_entry_type()
-{
-    if $(head -7 "$1" | grep --quiet DRAFT); then
-        echo "draft"
-    else
-        echo "published"
-    fi
-}
 
-pb_makeindex()
-{
-  echo "not implemented"
-}
-
+# Publish all of the things
+# $1 = [prev|prod] for previw or production mode
+# production mode should only be used via the post-receive hook
 pb_pub()
 {
     pb_check_state
@@ -107,19 +98,23 @@ pb_pub()
     esac
 
     indexables=()
-    existables=()
     for mdf in ${pb_mdfiles[@]}; do
         htf=$target_dir${mdf%.md}.html
         if [ $(pb_entry_type $mdf) == "draft" ]; then
-            echo "DRAFT: $mdf -> $htf"
+            if [ "$1" == "prev" ]; then
+                pandoc -o "$htf" "$mdf" $pandoc_args --template "$pb_tmpl_entry_html"
+                echo "DRAFT: $mdf -> $htf"
+            fi
         else
-            echo "CURR:  $mdf -> $htf"
             mdf_date=$(head -5 "$mdf" | grep -i 'date:')
             mdf_date=${mdf_date#"date:"}
-            existables[${#existables[@]}]=$htf
             indexables[${#indexables[@]}]="$mdf_date,$mdf,${htf##*/}"
-            pandoc -o "$htf" "$mdf" $pandoc_args --template "$pb_tmpl_entry_html"
-     
+            if [ "$mdf" -nt "$htf" ]; then
+                echo "UP:    $mdf -> $htf"
+                pandoc -o "$htf" "$mdf" $pandoc_args --template "$pb_tmpl_entry_html"
+            elif [ $pb_verbose -ne 0 ]; then
+                echo "CURR:  $mdf -- $htf"
+            fi
         fi
     done
 
@@ -137,20 +132,18 @@ pb_pub()
         echo "[${idxar[0]} -$mdf_title](./${idxar[2]})" >> "$pb_temp_index"
         echo >> "$pb_temp_index"
     done
+
     pandoc -o "$target_dir/index.html" "$pb_temp_index" $pandoc_args --template "$pb_tmpl_index_html"
-    existables[${#existables[@]}]="$target_dir/index.html"
-    rm "$pb_tmp_index"
+    rm "$pb_temp_index"
 
-    cp "style/style.css" "$target_dir/"
-    existables[${#existables[@]}]="$target_dir/style.css"
-    
-    ## Copy Media
-                   
-}
+    cp -vu "$pb_srcdir/style.css" "$target_dir/"
 
-pb_push()
-{
-    echo "push not implemented"
+    echo "Copying updated media"
+    if hash rsync 2>>/dev/null; then
+       rsync -vruc --delete "$pb_srcdir/$pb_relmediadir/" "$target_dir/$pb_relmediadir"
+    else
+       cp -vru "$pb_srcdir/$pb_relmediadir" "$target_dir/"
+    fi
 }
 
 # Creat a new timestamped article named for the article title
@@ -204,7 +197,6 @@ case $1 in
     "edit") pb_edit draft;;
     "rewrite") pb_edit published;;
     "pub") pb_pub prev;;
-    "push") pb_push;;
     "-h") pb_help;;
     *) pb_help;;
 esac
