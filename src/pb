@@ -97,6 +97,8 @@ pb_pub()
            exit 0 ;;
     esac
 
+    mkdir -p "$target_dir"
+    
     # track what to put in the index page
     indexables=()
 
