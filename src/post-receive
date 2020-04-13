@@ -6,27 +6,18 @@ echo
 echo
 
 repo_dir="$(pwd)"
-echo "$repo_dir"
 repo_name="${repo_dir##*/}"
-echo "$repo_name"
 pb_tmp="$HOME/pb/$repo_name"
-echo "$pb_tmp"
 
 mkdir -p "$pb_tmp"
 
-pushd "$pb_tmp"
+cd "$pb_tmp"
 
-if [ -f ".git/config" ]; then
-	git pull
-else
-	git clone "$repo_dir" ./ 2>/dev/null
-fi
+git clone "$repo_dir" ./ 2>/dev/null
+
+OLD_GIT_DIR="$GIT_DIR"
+export GIT_DIR="$(pwd)/.git"
+git pull origin master
+GIT_DIR="$OLD_GIT_DIR"
 
 "$HOME/.local/bin/pb" prod
-
-echo
-echo
-popd
-
-
-
