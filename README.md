@@ -132,10 +132,10 @@ Then do `git add .` and `git push`
 
 ## Publishing
 
-1. Set up your remote repository (use `git init --bare`, `gitolite`, `gitlab`, or whatever tickles your fancy, it's just gotta be on the whatever machine serves the blog)
-2. Copy `post-recieve` into the `hooks` directory (on the server)
+1. Set up your remote repository (use `git init --bare`, `gitolite`, `gitlab`, or whatever tickles your fancy, it's just gotta be on yo' blog server)
+2. Copy `post-recieve` from `src/` into the `hooks` directory of the repository (on the server)
 3. Make sure the copied version of `post-receive` is writeable (`chmod a+x` should do)
-3. Make sure the `prod\_*` variables are set correctly in `pb.conf`
+3. Make sure the `prod_*` variables are set correctly in `pb.conf`
 4. Do `get remote add`
 5. Do `git add .`
 6. Do `git commit -m "some commit message"`
