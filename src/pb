@@ -162,6 +162,8 @@ pb_write()
 {
   entry_date=""
   if [ "$pb_usedate" -eq 1 ]; then
+    entry_date="$(date +'%Y-%m-%d')-"
+  elif [ "$pb_usedate" -eq 2 ]; then
     entry_date="$(date +'%Y-%m-%d-%H-%M')-"
   fi
   echo "Enter article title:"
